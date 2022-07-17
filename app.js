@@ -12,8 +12,6 @@ const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 dotenv.config();
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var commonRouter = require('./routes/common');
 
 var app = express();
 
@@ -65,13 +63,6 @@ client.on('message', async (message) => {
 
     const contact = await message.getContact();
 
-    /*var a1= JSON.stringify(message.location)
-    console.log("STRIGIFY"+a1);
-    var a2= a1.split(":");
-    console.log("a2"+a2)
-    var a3=a2.split(":");
-    console.log("a3"+a3)*/
-
     var initiateHelpData = {
       "requestId": aguid(),
       "name": contact.pushname,
@@ -103,9 +94,18 @@ client.on('message', async (message) => {
   }
 });
 
+//endpoint to send messages back to user
+app.post('/message/send', (req, res) => {
+  var clientContact=`91${req.body.number}@c.us`;
+  console.log(clientContact)
+  const media = MessageMedia.fromFilePath('./public/images/ambulet-logo.jpeg');
+    var encodedMsg="Welcome%20to%20Ambulet%20Emergency%20Services.%0A%0APlease%20share%20your%20location%20via%20WhatsApp%20location%20share.%0A%0AThank%20you."
+    client.sendMessage(clientContact, media, {
+      caption: decodeURI(encodedMsg),
+    });
+    res.send('hello world')
+})
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/common', commonRouter);
 
 module.exports = app;
